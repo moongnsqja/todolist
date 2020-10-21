@@ -1,1 +1,369 @@
+const body = document.querySelector("body");
 
+const IMG_NUMBER = 3;
+
+function handleImgLoad(params) {
+    console.log("finished loading");
+}
+
+function paintImage(imgNumber) {
+    const image = new Image();
+    image.src = `image/${imgNumber+1}.jpg`;
+    image.classList.add("bgImage");
+    body.appendChild(image);
+    image.addEventListener("loadend", handleImgLoad);
+}
+
+function genRandom(params) {
+    const number = Math.floor(Math.random()*IMG_NUMBER);
+    return number;
+}
+//math.ceil(숫자) 올림, math.floor(숫자) 내림
+
+function init(params) {
+    const randomnumber = genRandom();
+    paintImage(randomnumber);
+}
+init(); 
+
+const form = document.querySelector(".js-form"),
+    input = form.querySelector("input"),
+    greeting = document.querySelector(".js-greetings");
+
+const USER_LS="currentUser",
+    SHOWING_CN = "showing";
+
+function saveName(text) {
+    localStorage.setItem(USER_LS, text);
+}
+
+function handleSubmit(event) {
+    event.preventDefault(); //초기화 되는걸 막아주고
+    const currentValue = input.value; //username을 받고
+    console.log(currentValue);
+    paintGreeting(currentValue);//밑에 펑션을 해준다
+    saveName(currentValue);
+}
+
+function askForName(params) {
+    form.classList.add(SHOWING_CN);
+    form.addEventListener("submit", handleSubmit);
+}
+
+function paintGreeting(text) {//()안에 있는건 argument 인수
+    form.classList.remove(SHOWING_CN);//text를 색칠하려면 form을 숨겨야함
+    greeting.classList.add(SHOWING_CN);
+    greeting.innerText = `Hello😋 ${text}`;
+}
+
+function loadName(params) {
+    const currentUser = localStorage.getItem(USER_LS);
+    if(currentUser === null){
+        askForName();
+    }else{//user가 있을 때
+        paintGreeting(currentUser);
+    }
+}
+function init(params) {
+    loadName();
+}
+init();
+
+const clockContainer = document.querySelector(".js-clock"),
+ clockTitle = clockContainer.querySelector("h1");
+
+
+ function getTime(params) {
+     const date = new Date(); //Date는 class full stack js에서 확인 가능
+     const minutes = date.getMinutes();
+     const hours = date.getHours();
+     const seconds = date.getSeconds();
+     clockTitle.innerText = `${hours <10 ? `0${hours}`:hours}:${minutes < 10 ? `0${minutes}` :minutes}:${seconds < 10 ? `0${seconds}`:seconds}`;
+     //ternary operator (삼항연산자 or 미니if
+     //?는 질문이고 :는 else
+ }
+
+function init(params){
+ getTime();  
+ setInterval(getTime, 1000);
+ //setInterval(a,b) a= 함수이고 b는 실행할 시간 간격(시간단위는 밀리세컨)
+}
+init(); 
+
+.form,
+.gettings{
+    display: none;
+}/*h1, h4 태그 안에 class 뒤에 있는 것에 적용하는 것임*/
+.showing{
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+.bgImage{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    animation: fadeIn 0.5s linear;
+}
+body{
+    color: white;
+}
+.js-clock{
+  position: absolute;
+  top: 100px;
+  left: 550px;
+  font-size: 50px;
+}
+.js-weather{
+  position: absolute;
+  right: 2%;
+  top: 10px;
+  font-size: large;
+  font-weight: bold;
+}
+.position{
+  position: absolute;
+  left: 44%;
+  top: 300px;
+}
+.js-toDoList{
+  font-size: 20px; 
+}
+.js-greetings{
+  color: brown;
+  font-size: 30px;
+} 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="momentum.css">
+</head>
+<body>
+    <div class="js-clock">
+        <h1 class="js-title"></h1>
+    </div>
+    <div class="position">
+    <!--위치 바꾸는거 알아보기-->
+        <form class="js-form form">
+            <input type="text" placeholder="what is your name?">
+        </form>
+        <h1 class="js-greetings greetings"></h1>
+
+        <form class="js-toDoForm">
+            <input type="text" placeholder="white a to do">
+            <!--placeholder는 텍스트 창에 안내문같은거-->
+        </form>
+        <ul class="js-toDoList">
+        </ul>
+    </div>
+    <span class="js-weather"></span>
+
+    <script src="momentum-clock.js"></script>
+    <script src="greeting.js"></script>
+    <script src="todo.js"></script>
+    <script src="bg.js"></script>
+    <script src="weather.js"></script>
+</body>
+</html>
+
+/*
+const toDoForm = document.querySelector(".js-toDoForm"),
+    toDoInput = toDoForm.querySelector("input"),
+    toDoList = document.querySelector(".js-toDoList");
+const TODOS_LS = 'toDos';
+const toDos = [];
+function saveToDos(params) {
+    localStorage.setItem(TODOS_LS, JSON.stringify(toDos));
+    /*JSON.stringify는 데이터를 전달할 때, 자바스크립트가 그걸 다룰 수 있게 변형시켜주는 것 
+    자바스크립트object -> string or string -> object
+    쓴 이유는 자바스크립트는 모든 데이터를 string으로 저장하려고 하는데 
+    여기서 저장될 때 object로됨 그래서 string으로 바꾸려고 씀
+}
+function paintToDo(text) {
+    const li = document.createElement("li");    //make entpy li
+    const delBtn = document.createElement("button");     //make span button
+    const span = document.createElement("span");
+    const newId = toDos.length +1;
+    delBtn.innerText = "❌";
+    span.innerText = text;  //this text comes from submit function
+    li.appendChild(span);   // span put in li
+    li.appendChild(delBtn); // button inside of the li
+    li.id = newId;
+    toDoList.appendChild(li);
+    const toDoObj = {
+        text: text,
+        id: newId
+        
+    };
+    toDos.push(toDoObj);
+    saveToDos();
+}//local storage에는 자바스크립트 data를 저장할 수 없고 string만 저장 가능
+function handleSubmit(event) {
+    event.preventDefalut();
+    const currentValue = toDoInput.value;
+    paintToDo(currentValue);
+    toDoInput.value = ""; //값을 입력 한 후에 input창을 비운다 이거 안하면 그대로 남아 잇음
+}
+function loadToDos(params) {
+    const loadedToDos = localStorage.getItem(TODOS_LS);
+    if(loadToDos !== null){
+      const parsedToDos = JSON.parse(loadedToDos);
+      parsedToDos.forEach(function(toDo){
+        paintToDo(toDo.text);
+      }); 
+      //array에 담겨있는 것들을 각각에 한번씩 함수를 실행시켜준다
+      // toDos==null 일 때 toDoForm은 항상 보이기 때문에 할게 없다
+      //그래서 같지 않을 때로 한다
+    }
+}
+    function init(params) {
+        loadToDos();
+        toDoForm.addEventListener("submit", handleSubmit);
+    }
+    init();*/
+
+
+   const toDoForm = document.querySelector(".js-toDoForm"),
+   toDoInput = toDoForm.querySelector("input"),
+   toDoList = document.querySelector(".js-toDoList");
+
+ const TODOS_LS = "toDos";
+
+ let toDos = [];
+
+
+
+ function deleteToDo(event) {
+   const btn = event.target;
+   const li = btn.parentNode;
+   toDoList.removeChild(li);
+   const cleanToDos = toDos.filter(function (toDo) {
+     return toDo.id !== parseInt(li.id);//li.id가 string이어서 parseInt를 이용하여 숫자로 바꾸어줌
+   });
+   toDos = cleanToDos;
+   saveToDos();
+ }
+
+
+ function saveToDos() {
+   localStorage.setItem(TODOS_LS, JSON.stringify(toDos));
+ }
+
+ function paintToDo(text) {
+   const li = document.createElement("li");
+   const span = document.createElement("span");
+   const delBtn = document.createElement("button");
+   const newId = toDos.length + 1;
+   span.innerText = text;
+   delBtn.innerText = "❌";
+   delBtn.addEventListener("click",deleteToDo);
+   li.appendChild(span);
+   li.appendChild(delBtn);
+   li.id = newId; //삭제를 위한 id설정  
+   toDoList.appendChild(li);
+   const toDoObj = {
+     text: text,
+     id: newId 
+   };
+   toDos.push(toDoObj); //element 하나를 넣음
+   saveToDos();
+ }
+
+ function handleSubmit(event) {
+   event.preventDefault();
+   const currentValue = toDoInput.value;
+   paintToDo(currentValue);
+   toDoInput.value = "";
+ }
+
+ function loadToDos() {
+   const loadedToDos = localStorage.getItem(TODOS_LS);
+   if (loadedToDos !== null) {
+     const parsedToDos = JSON.parse(loadedToDos);
+     parsedToDos.forEach(function(toDo) {
+       paintToDo(toDo.text);
+     });
+   }
+ }
+
+ function init() {
+   loadToDos();
+   toDoForm.addEventListener("submit", handleSubmit);
+ }
+ init();
+ 
+//api = application Programming Interface
+//다른 서버로부터 손쉽게 데이터를 가져올 수 있는 수단
+const weather = document.querySelector(".js-weather");
+
+const API_KEY = `e8b927b829b8754318cd8e89a6db8493`;
+const COORDS = `coords`;
+
+
+function getWeather(lat, lng) {
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`)
+    //데이터를 가져올 때 사용함
+    //fetch(`https://~~~~~~~`);
+    .then(function (response) {
+        return response.json();
+        //ja에서 무언가가 끝나기를 기다리는 방법은 .then사용하는 것
+    })
+    .then(function name(json) {
+        const temperature = json.main.temp;
+        const place = json.name;
+        weather.innerText  = `${temperature}℃ @ ${place}`;
+    });
+} 
+
+function saveCoords(coordsObj) {
+    localStorage.setItem(COORDS, JSON.stringify(coordsObj));
+}
+
+function handleGeoSucces(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    const coordsObj = {
+        latitude,
+        longitude
+    };
+    saveCoords(coordsObj);
+    getWeather(latitude, longitude);
+}
+
+function handleGeoError (params) {
+    console.log("cant access geo location");
+}
+
+function askForCoords(params) {
+    navigator.geolocation.getCurrentPosition(handleGeoSucces, handleGeoError)
+}//내 위치 읽는거
+
+function loadCoords(params) {
+    const loadedCoords = localStorage.getItem(COORDS);
+    if(loadedCoords == null){
+        askForCoords();
+    } else{
+        const parsedCoords = JSON.parse(loadedCoords); 
+        getWeather(parsedCoords.latitude, parsedCoords.longitude);
+    }
+}
+
+function init(params) {
+    loadCoords();
+}
+init(); 
